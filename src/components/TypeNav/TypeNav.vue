@@ -129,7 +129,6 @@ export default {
       }
     },
     enterShow() {
-      // 天团灬拖后腿
       this.show = true;
     },
   },
