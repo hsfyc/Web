@@ -11,15 +11,35 @@
             </li>
           </ul>
           <ul class="fl sui-tag">
+            <!-- 分类的面包屑 -->
             <li class="with-x" v-show="searchParams.categoryName">
               {{ searchParams.categoryName }}
               <i @click="removeCategoryName">x</i>
+            </li>
+            <!-- 关键字的面包屑 -->
+            <li class="with-x" v-show="searchParams.keyword">
+              {{ searchParams.keyword }}
+              <i @click="removeKeyword">x</i>
+            </li>
+            <!-- 品牌的面包屑 -->
+            <li class="with-x" v-show="searchParams.trademark">
+              {{ searchParams.trademark }}
+              <i @click="removeTrademark">x</i>
+            </li>
+            <!-- 平台售卖属性的面包屑 -->
+            <li
+              class="with-x"
+              v-for="(attrValue, index) in searchParams.props"
+              :key="index"
+            >
+              {{ attrValue.split(":")[1] }}
+              <i @click="removeAttr(index)">x</i>
             </li>
           </ul>
         </div>
 
         <!--selector-->
-        <SearchSelector />
+        <SearchSelector @trademarkInfo="trademarkInfo" @attrInfo="attrInfo" />
 
         <!--details-->
         <div class="details clearfix">
@@ -165,13 +185,57 @@ export default {
     getData() {
       this.$store.dispatch("search/getSearchList", this.searchParams);
     },
+    // 删除分类的名字
     removeCategoryName() {
       this.searchParams.categoryName = undefined;
       this.searchParams.category1Id = undefined;
       this.searchParams.category2Id = undefined;
       this.searchParams.category3Id = undefined;
       this.getData();
-      this.$router.push({ name: "search" });
+      if (this.$route.params) {
+        this.$router.push({ name: "search", params: this.$route.params });
+      }
+    },
+    // 删除关键字
+    removeKeyword() {
+      // 服务器将searchParams的keyword置空;
+      this.searchParams.keyword = undefined;
+      //再次发请求
+      this.getData();
+      //通知兄弟组件删除keyword
+      this.$bus.$emit("clearKeyword");
+      //路由跳转
+      if (this.$route.query) {
+        this.$router.push({ name: "search", query: this.$route.query });
+      }
+    },
+    // 自定义事件回调
+    trademarkInfo(trademark) {
+      this.searchParams.trademark = `${trademark.tmId}:${trademark.tmName}`;
+      this.getData();
+    },
+    // 删除品牌的信息
+    removeTrademark() {
+      this.searchParams.trademark = undefined;
+      // 再次发请求
+      this.getData();
+    },
+    attrInfo(attr, attrValue) {
+      console.log(attr, attrValue);
+      // 参数格式整理好
+      let props = `${attr.attrId}:${attrValue}:${attr.attrName}`;
+      //数组去重
+      if (this.searchParams.props.indexOf(props) == -1) {
+        this.searchParams.props.push(props);
+        this.getData();
+      }
+    },
+    //删除属性
+    removeAttr(index) {
+      console.log(index);
+      this.searchParams.props.splice(index, 1);
+      //再次发请求
+      this.getData();
     },
   },
   beforeMount() {
