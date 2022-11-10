@@ -7,8 +7,7 @@ export default {
     actions: {
         async categoryList({ commit }) {
             let result = await reqCategoryList();
-            result.data.pop()
-
+            console.log(result.data);
             if (result.code == 200) {
                 commit("CATEGORYLIST", result.data);
             }
