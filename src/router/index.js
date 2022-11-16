@@ -34,6 +34,11 @@ VueRouter.prototype.replace = function (location, resolve, reject) {
 export default new VueRouter({
     mode: 'history',
     routes: [
+        //重定向,在项目跑起来的时候,访问/，立马让它定向到首页
+        {
+            path: '/',
+            redirect: 'home'
+        },
         {
             path: '/home',
             name: 'home',
@@ -56,10 +61,5 @@ export default new VueRouter({
             path: '/register',
             component: Register,
         },
-        //重定向,在项目跑起来的时候,访问/，立马让它定向到首页
-        {
-            path: '*',
-            redirect: 'home'
-        }
     ]
 })
